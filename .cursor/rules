@@ -1,0 +1,292 @@
+# Study Streaks - Cursor Development Rules
+
+## Project Overview
+Study Streaks is an EdTech SaaS platform that gamifies homework completion through streaks, leaderboards, and rewards. The platform connects schools, teachers, students, and parents to track and motivate out-of-school learning.
+
+**Key Features:**
+- Homework assignment and tracking
+- Student progress streaks and rewards
+- Teacher, parent, and admin dashboards
+- Analytics and reporting
+- Multi-role user management (Teachers, Students, Parents, Admins)
+
+## Tech Stack
+
+### Core Technologies
+- **Frontend**: React 18+ with TypeScript
+- **Styling**: Tailwind CSS v3+ (component-based design system)
+- **State Management**: Zustand (lightweight) + React Query (server state)
+- **Backend**: Node.js with Express or Fastify
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: Auth0 or Supabase Auth (school-grade security)
+- **Testing**: Vitest + React Testing Library
+- **Build Tool**: Vite
+- **Deployment**: Vercel (frontend) + Railway/Render (backend)
+
+### Future Considerations
+- React Native for mobile apps (iOS/Android)
+- Shared business logic between web/mobile
+
+## Code Style & Standards
+
+### TypeScript
+- Use TypeScript strict mode always
+- Prefer type inference over explicit types when obvious
+- Use branded types for IDs: `type StudentId = string & { __brand: 'StudentId' }`
+- Define API response types explicitly
+- Use const assertions for enum-like objects
+
+### React Patterns
+- Use functional components exclusively
+- Prefer custom hooks for business logic
+- Keep components under 150 lines
+- Use compound component patterns for complex UI
+- Separate presentational and container components
+
+### Code Organization
+```
+src/
+├── components/           # Reusable UI components
+│   ├── ui/              # Base design system components
+│   └── features/        # Feature-specific components
+├── hooks/               # Custom React hooks
+├── pages/               # Route components
+├── services/            # API calls and external services
+├── stores/              # Zustand stores
+├── types/               # TypeScript type definitions
+├── utils/               # Pure utility functions
+└── constants/           # App constants and config
+```
+
+### File Naming
+- Use kebab-case for files: `homework-tracker.tsx`
+- Use PascalCase for components: `HomeworkTracker`
+- Use camelCase for functions and variables
+- Use SCREAMING_SNAKE_CASE for constants
+
+### Import Organization
+```typescript
+// 1. React imports
+import React, { useState, useEffect } from 'react'
+
+// 2. Third-party libraries
+import { clsx } from 'clsx'
+import { useMutation } from '@tanstack/react-query'
+
+// 3. Internal utilities/hooks
+import { useAuthStore } from '@/stores/auth'
+import { api } from '@/services/api'
+
+// 4. Internal components
+import { Button } from '@/components/ui/button'
+import { StudentCard } from '@/components/features/student-card'
+
+// 5. Types
+import type { Student, Homework } from '@/types'
+```
+
+## Architecture Principles
+
+### User Roles & Permissions
+- **Student**: View homework, mark complete, see streaks/rewards
+- **Teacher**: Assign homework, track class progress, communicate with parents
+- **Parent**: Monitor child's progress, support learning
+- **Admin**: School-wide analytics, manage teachers/classes
+
+### Data Modeling
+- Multi-tenant architecture (school-based)
+- Role-based access control (RBAC)
+- Audit trails for educational data
+- COPPA/FERPA compliance considerations
+
+### API Design
+- RESTful endpoints with clear resource naming
+- Consistent error responses
+- Proper HTTP status codes
+- Request/response validation with Zod
+- Rate limiting for protection
+
+### Security
+- Input validation and sanitization
+- HTTPS everywhere
+- Secure session management
+- Data encryption at rest
+- Regular security audits
+
+## UI/UX Guidelines
+
+### Design System
+- Child-friendly color palette with high contrast
+- Clear visual hierarchy for different user roles
+- Accessibility-first approach (WCAG 2.1 AA)
+- Mobile-responsive design
+- Dark/light mode support
+
+### Component Patterns
+- Consistent button styles and states
+- Form validation with clear error messages
+- Loading states and skeletons
+- Empty states with helpful guidance
+- Progressive disclosure for complex features
+
+### Streak & Gamification UI
+- Visual streak counters with animations
+- Badge/achievement systems
+- Progress bars and charts
+- Leaderboards with privacy controls
+- Reward redemption interfaces
+
+## Performance Standards
+
+### Bundle Size
+- Keep main bundle under 200KB gzipped
+- Lazy load non-critical pages
+- Code splitting by route and feature
+- Optimize images and assets
+
+### Runtime Performance
+- 60fps animations and interactions
+- First Contentful Paint < 1.5s
+- Time to Interactive < 3s
+- Use React.memo and useMemo strategically
+- Minimize re-renders with proper state design
+
+### Accessibility
+- Semantic HTML structure
+- ARIA labels and roles
+- Keyboard navigation support
+- Screen reader compatibility
+- Focus management
+
+## Testing Strategy
+
+### Unit Tests
+- All utility functions must have tests
+- Custom hooks require test coverage
+- Critical business logic components
+- API service layer testing
+
+### Integration Tests
+- User flows (homework submission, streak tracking)
+- Authentication and authorization
+- Role-based feature access
+- Data persistence scenarios
+
+### E2E Tests
+- Critical user journeys
+- Cross-browser compatibility
+- Mobile responsiveness
+- Performance regression tests
+
+## Error Handling
+
+### Frontend
+- Global error boundary for React errors
+- Toast notifications for user-facing errors
+- Retry mechanisms for network failures
+- Graceful degradation for missing features
+
+### API Errors
+- Structured error responses
+- Client-friendly error messages
+- Logging for debugging
+- Rate limiting responses
+
+## Development Workflow
+
+### Git Conventions
+- Feature branches: `feature/homework-tracking`
+- Commit messages: `feat: add homework assignment form`
+- PR reviews required before merge
+- Squash commits before merging
+
+### Code Quality
+- ESLint + Prettier configuration
+- Husky pre-commit hooks
+- TypeScript strict mode
+- SonarQube or similar for code quality
+
+### Environment Management
+- Local development with hot reload
+- Staging environment for testing
+- Production deployment pipeline
+- Environment-specific configurations
+
+## Educational Domain Rules
+
+### Student Privacy
+- Never log personally identifiable information
+- Secure data transmission and storage
+- Parental consent workflows
+- Data retention policies
+
+### Learning Psychology
+- Positive reinforcement patterns
+- Age-appropriate gamification
+- Growth mindset messaging
+- Inclusive design for diverse learners
+
+### School Integration
+- Flexible assignment types
+- Grade-level appropriate features
+- Teacher workflow optimization
+- Parent engagement tools
+
+## Common Patterns to Follow
+
+### Homework Management
+```typescript
+// Use consistent patterns for homework state
+const useHomework = () => {
+  const { data: homework, isLoading } = useQuery({
+    queryKey: ['homework', studentId],
+    queryFn: () => api.homework.getByStudent(studentId)
+  })
+  
+  const markComplete = useMutation({
+    mutationFn: api.homework.markComplete,
+    onSuccess: () => {
+      // Update streak, show celebration
+    }
+  })
+  
+  return { homework, isLoading, markComplete }
+}
+```
+
+### Streak Tracking
+```typescript
+// Consistent streak calculation and display
+interface Streak {
+  current: number
+  longest: number
+  subject?: string
+  lastUpdated: Date
+}
+```
+
+### Role-Based Rendering
+```typescript
+// Use consistent role checking
+const StudentView = () => (
+  <RoleGuard allowedRoles={['student']}>
+    <HomeworkList />
+  </RoleGuard>
+)
+```
+
+## AI Assistant Guidelines
+
+When working on Study Streaks:
+1. Prioritize student safety and privacy in all features
+2. Ensure age-appropriate design and language
+3. Focus on positive reinforcement and growth mindset
+4. Consider diverse learning styles and abilities
+5. Maintain consistency with educational best practices
+6. Test thoroughly for accessibility compliance
+7. Keep user flows simple and intuitive
+8. Document decisions affecting student data handling
+
+---
+
+**Remember**: This is an educational product that impacts children's learning. Every decision should prioritize student wellbeing, privacy, and positive educational outcomes.
