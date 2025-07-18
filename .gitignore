@@ -176,3 +176,14 @@ certificates/
 *.tar.gz
 *.rar
 *.7z
+
+logs
+*.log
+dev-debug.log
+# Environment variables
+.vscode
+# OS specific
+
+# Task files
+# tasks.json
+# tasks/ 
