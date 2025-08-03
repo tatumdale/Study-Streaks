@@ -1,0 +1,112 @@
+name: Branch Cleanup
+
+on:
+  schedule:
+    # Run weekly on Sundays at 2 AM UTC
+    - cron: '0 2 * * 0'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  cleanup-merged-branches:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Delete merged feature branches
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get all remote branches merged into develop
+          merged_branches=$(git branch -r --merged origin/develop | grep -E 'origin/(feature|bugfix)/' | grep -v 'origin/develop' | sed 's|origin/||' | xargs)
+          
+          if [ -n "$merged_branches" ]; then
+            echo "Found merged branches: $merged_branches"
+            
+            for branch in $merged_branches; do
+              # Check if the branch has an associated PR that is merged
+              pr_state=$(gh pr list --state merged --head "$branch" --json state --jq '.[0].state' 2>/dev/null || echo "")
+              
+              if [ "$pr_state" = "MERGED" ] || [ -z "$pr_state" ]; then
+                echo "Deleting merged branch: $branch"
+                git push origin --delete "$branch" || echo "Failed to delete $branch (may not exist)"
+              fi
+            done
+          else
+            echo "No merged feature branches found"
+          fi
+
+      - name: Clean up stale branches (older than 90 days)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Find branches older than 90 days
+          ninety_days_ago=$(date -d "90 days ago" +%Y-%m-%d)
+          
+          # Get feature/bugfix branches older than 90 days
+          old_branches=$(git for-each-ref --format='%(refname:short) %(committerdate:short)' refs/remotes/origin/ | \
+                        awk -v cutoff="$ninety_days_ago" '$2 < cutoff && /^origin\/(feature|bugfix)\//' | \
+                        cut -d' ' -f1 | sed 's|origin/||')
+          
+          if [ -n "$old_branches" ]; then
+            echo "Found stale branches (>90 days): $old_branches"
+            
+            # Create an issue to notify about stale branches instead of auto-deleting
+            gh issue create \
+              --title "Stale Feature Branches Detected" \
+              --body "The following branches are older than 90 days and may need cleanup:
+
+          $old_branches
+
+          Please review these branches and:
+          1. Merge them if they contain valuable work
+          2. Delete them if they're no longer needed
+          3. Update them if work is still in progress
+
+          Branches older than 120 days will be automatically deleted." \
+              --label "maintenance,cleanup" || echo "Issue may already exist"
+          else
+            echo "No stale branches found"
+          fi
+
+      - name: Auto-delete very old branches (older than 120 days)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Find branches older than 120 days
+          one_twenty_days_ago=$(date -d "120 days ago" +%Y-%m-%d)
+          
+          # Get feature/bugfix branches older than 120 days
+          very_old_branches=$(git for-each-ref --format='%(refname:short) %(committerdate:short)' refs/remotes/origin/ | \
+                             awk -v cutoff="$one_twenty_days_ago" '$2 < cutoff && /^origin\/(feature|bugfix)\//' | \
+                             cut -d' ' -f1 | sed 's|origin/||')
+          
+          if [ -n "$very_old_branches" ]; then
+            echo "Auto-deleting very old branches (>120 days): $very_old_branches"
+            
+            for branch in $very_old_branches; do
+              echo "Deleting very old branch: $branch"
+              git push origin --delete "$branch" || echo "Failed to delete $branch (may not exist)"
+            done
+            
+            # Comment on the existing issue if it exists
+            issue_number=$(gh issue list --label "maintenance,cleanup" --state open --search "Stale Feature Branches" --json number --jq '.[0].number' 2>/dev/null || echo "")
+            
+            if [ -n "$issue_number" ]; then
+              gh issue comment "$issue_number" --body "🤖 Auto-deleted very old branches (>120 days): $very_old_branches"
+            fi
+          else
+            echo "No very old branches found"
+          fi

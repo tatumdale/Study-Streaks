@@ -1,0 +1,748 @@
+// StudyStreaks Database Schema - COMPREHENSIVE VERSION
+// Based on comprehensive documentation analysis
+// Multi-tenant architecture with Row Level Security for UK schools
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL") // For connection pooling with Supabase
+}
+
+// ============================================================================
+// CORE TENANT & AUTHENTICATION
+// ============================================================================
+
+model School {
+  id                    String   @id @default(cuid())
+  
+  // UK School Identifiers
+  name                  String
+  urn                   String?  @unique // UK URN (Unique Reference Number)
+  dfeNumber             String?  @unique // DfE establishment number
+  localAuthorityCode    String?  // LA code
+  
+  // Contact Information
+  address               String
+  postcode              String
+  phone                 String
+  email                 String   @unique
+  website               String?
+  
+  // School Configuration
+  schoolType            SchoolType @default(PRIMARY)
+  minYearGroup          Int      @default(0)  // Reception = 0
+  maxYearGroup          Int      @default(6)  // Year 6
+  isActive              Boolean  @default(true)
+  
+  // Branding & Customization
+  logoUrl               String?
+  brandColors           Json?    // School brand colors
+  settings              Json?    // School-specific configuration
+  
+  // Timestamps
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  // Relationships (All tenant-isolated entities)
+  users                 User[]
+  teachers              Teacher[]
+  students              Student[]
+  parents               Parent[]
+  schoolAdmins          SchoolAdmin[]
+  classes               Class[]
+  clubs                 Club[]
+  clubLevels            ClubLevel[]
+  classClubLevels       ClassClubLevel[]
+  studentClubProgress   StudentClubProgress[]
+  teacherClasses        TeacherClass[]
+  parentStudents        ParentStudent[]
+  roles                 Role[]
+  userRoles             UserRole[]
+  homeworkCompletions   HomeworkCompletion[]
+  readingLogEntries     ReadingLogEntry[]
+  streakPauses          StreakPause[]
+  streaks               StudentStreak[]
+  dailyStreakRecords    DailyStreakRecord[]
+  buddyGroups           BuddyGroup[]
+  buddyGroupMembers     BuddyGroupMember[]
+  buddyGroupInvitations BuddyGroupInvitation[]
+  buddyGroupDailyRecords BuddyGroupDailyRecord[]
+  streakGoals           StreakGoal[]
+  streakGoalProgress    StreakGoalProgress[]
+  learningPointsBalances LearningPointsBalance[]
+  learningPointsTransactions LearningPointsTransaction[]
+  weeklyLPSnapshots     WeeklyLearningPointsSnapshot[]
+  studentClubLevels     StudentClubLevel[]
+  clubLevelValues       ClubLevelValue[]
+  fuelTransactions      FuelTransaction[]
+  studentFuelBalances   StudentFuelBalance[]
+  achievements          Achievement[]
+  studentAchievements   StudentAchievement[]
+  stickers              Sticker[]
+  studentStickers       StudentSticker[]
+  prizes                Prize[]
+  prizeDraws            PrizeDraw[]
+  prizeWinners          PrizeWinner[]
+  drawEligibility       DrawEligibility[]
+  
+  // Indexes
+  @@index([urn])
+  @@index([isActive])
+  @@map("schools")
+}
+
+enum SchoolType {
+  NURSERY               // Nursery school
+  PRIMARY               // Primary school (most common)
+  SECONDARY             // Secondary school  
+  ALL_THROUGH           // All-through school (primary + secondary)
+  SPECIAL               // Special school
+  PRU                   // Pupil Referral Unit
+}
+
+// Base User model for authentication
+model User {
+  id                    String       @id @default(cuid())
+  schoolId              String       // Tenant isolation
+  
+  // Authentication
+  email                 String       @unique
+  emailVerified         DateTime?
+  passwordHash          String?      // For local auth
+  
+  // Account Status
+  isActive              Boolean      @default(true)
+  lastLoginAt           DateTime?
+  loginAttempts         Int          @default(0)
+  lockedUntil           DateTime?
+  
+  // User Type Links (one-to-one relationships)
+  teacher               Teacher?
+  student               Student?
+  parent                Parent?
+  schoolAdmin           SchoolAdmin?
+  
+  // RBAC
+  userRoles             UserRole[]
+  
+  // NextAuth.js tables
+  accounts              Account[]
+  sessions              Session[]
+  
+  // Audit
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+  
+  // Relationships
+  school                School       @relation(fields: [schoolId], references: [id])
+  
+  @@index([schoolId])
+  @@index([email])
+  @@index([schoolId, isActive])
+  @@map("users")
+}
+
+// NextAuth.js required models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ============================================================================
+// USER PROFILES (UK EDUCATIONAL ROLES)
+// ============================================================================
+
+model Teacher {
+  id                    String       @id @default(cuid())
+  schoolId              String       // Tenant isolation
+  userId                String       @unique
+  
+  // Professional Identity
+  employeeId            String?      // School's internal employee ID
+  title                 String       // "Mr", "Mrs", "Miss", "Dr"
+  firstName             String
+  lastName              String
+  displayName           String?      // "Mr. Smith", "Mrs. Jones"
+  
+  // Role & Permissions
+  teacherType           TeacherType  @default(CLASS_TEACHER)
+  isHeadTeacher         Boolean      @default(false)
+  isSenCo               Boolean      @default(false) // Special Educational Needs Coordinator
+  isDSL                 Boolean      @default(false) // Designated Safeguarding Lead
+  isDeputyHead          Boolean      @default(false)
+  
+  // Teaching Details
+  subjects              String[]     // ["Mathematics", "Science", "English"]
+  yearGroups            Int[]        // [3, 4, 5] - which year groups they teach
+  qualifications        Json?        // Teaching qualifications and training
+  
+  // Employment
+  startDate             DateTime     // When they started at school
+  endDate               DateTime?    // If they've left
+  contractType          ContractType @default(PERMANENT)
+  
+  // Contact (Professional)
+  schoolEmail           String?      // Professional email
+  phoneExtension        String?      // School phone extension
+  
+  // Safeguarding & Compliance
+  dbsCheckDate          DateTime?    // DBS (background check) date
+  dbsCheckNumber        String?      // DBS certificate number
+  safeguardingTraining  DateTime?    // Last safeguarding training
+  
+  // Class Management
+  teacherClasses        TeacherClass[] // Many-to-many with classes
+  
+  // RBAC
+  userRoles             UserRole[]
+  
+  // Audit
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+  
+  // Relationships
+  school                School       @relation(fields: [schoolId], references: [id])
+  user                  User         @relation(fields: [userId], references: [id])
+  
+  @@index([schoolId])
+  @@index([schoolId, teacherType])
+  @@map("teachers")
+}
+
+enum TeacherType {
+  HEAD_TEACHER          // Head teacher
+  DEPUTY_HEAD           // Deputy head teacher
+  ASSISTANT_HEAD        // Assistant head teacher
+  CLASS_TEACHER         // Main class teacher
+  SUBJECT_SPECIALIST    // Secondary subject teacher
+  TEACHING_ASSISTANT    // Teaching assistant
+  HIGHER_LEVEL_TA       // Higher Level Teaching Assistant
+  SEN_COORDINATOR       // Special Educational Needs Coordinator
+  SUPPLY_TEACHER        // Cover/supply teacher
+  TRAINEE_TEACHER       // Student teacher/trainee
+}
+
+enum ContractType {
+  PERMANENT             // Permanent contract
+  TEMPORARY             // Fixed-term contract
+  SUPPLY                // Supply/cover teacher
+  TRAINEE               // Trainee teacher
+  VOLUNTEER             // Volunteer helper
+}
+
+model Student {
+  id                    String       @id @default(cuid())
+  schoolId              String       // Tenant isolation
+  userId                String?      @unique // Optional - only for older students
+  
+  // Core Identity (GDPR Minimal)
+  firstName             String
+  lastName              String
+  preferredName         String?      // What they like to be called
+  dateOfBirth           DateTime
+  
+  // School Identity
+  pupilId               String       // School's internal student ID
+  admissionNumber       String?      // Unique admission number
+  yearGroup             Int          // Current year group
+  classId               String       // Current main class
+  
+  // Educational Details
+  admissionDate         DateTime     // When they started at school
+  leavingDate           DateTime?    // When they left (if applicable)
+  uln                   String?      // Unique Learner Number (UK)
+  upn                   String?      // Unique Pupil Number (UK)
+  
+  // Special Educational Needs
+  sen                   Boolean      @default(false)
+  senCategory           String?      // Type of SEN support needed
+  senSupport            Json?        // Details of SEN support
+  
+  // Additional Information
+  pupilPremium          Boolean      @default(false) // Pupil Premium eligibility
+  freeschoolMeals       Boolean      @default(false) // FSM eligibility
+  englishAsAdditional   Boolean      @default(false) // EAL student
+  
+  // Medical & Dietary (Essential Only)
+  medicalConditions     Json?        // Essential medical information
+  dietaryRequirements   Json?        // Allergies, dietary needs
+  
+  // Academic Progress & Clubs
+  houseGroup            String?      // School house (Red, Blue, etc.)
+  clubProgress          StudentClubProgress[] // Progress through club levels
+  
+  // Parent Relationships
+  parentStudents        ParentStudent[] // Links to parents/guardians
+  
+  // GDPR Compliance (Critical)
+  dataRetentionUntil    DateTime     // When to delete data (7 years post-leaving)
+  consentGiven          Boolean      @default(false) // Parental consent given
+  consentGivenBy        String?      // Which parent gave consent
+  consentDate           DateTime?    // When consent was given
+  consentWithdrawn      Boolean      @default(false) // Consent withdrawn
+  
+  // All Student Relationships
+  homeworkCompletions   HomeworkCompletion[]
+  readingLogEntries     ReadingLogEntry[]
+  streakPauses          StreakPause[]
+  streaks               StudentStreak[]
+  dailyStreakRecords    DailyStreakRecord[]
+  buddyGroupMembers     BuddyGroupMember[]
+  sentInvitations       BuddyGroupInvitation[] @relation("SentInvitations")
+  receivedInvitations   BuddyGroupInvitation[] @relation("ReceivedInvitations")
+  streakGoals           StreakGoal[]
+  streakGoalProgress    StreakGoalProgress[]
+  learningPointsBalances LearningPointsBalance[]
+  learningPointsTransactions LearningPointsTransaction[]
+  weeklyLPSnapshots     WeeklyLearningPointsSnapshot[]
+  studentClubLevels     StudentClubLevel[]
+  fuelTransactions      FuelTransaction[]
+  studentFuelBalances   StudentFuelBalance[]
+  studentAchievements   StudentAchievement[]
+  studentStickers       StudentSticker[]
+  prizeWinners          PrizeWinner[]
+  drawEligibility       DrawEligibility[]
+  
+  // Audit
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+  
+  // Relationships
+  school                School       @relation(fields: [schoolId], references: [id])
+  user                  User?        @relation(fields: [userId], references: [id])
+  class                 Class        @relation(fields: [classId], references: [id])
+  
+  @@index([schoolId])
+  @@index([schoolId, yearGroup])
+  @@index([schoolId, classId])
+  @@index([pupilId])
+  @@index([dataRetentionUntil])
+  @@map("students")
+}
+
+model Parent {
+  id                    String       @id @default(cuid())
+  schoolId              String       // Tenant isolation
+  userId                String       @unique
+  
+  // Identity
+  title                 String?      // "Mr", "Mrs", "Ms", "Dr"
+  firstName             String
+  lastName              String
+  
+  // Contact Information
+  email                 String       // Primary email
+  alternativeEmail      String?      // Secondary email
+  mobilePhone           String?      // Mobile number
+  homePhone             String?      // Home number
+  workPhone             String?      // Work number
+  
+  // Address
+  addressLine1          String?
+  addressLine2          String?
+  town                  String?
+  county                String?
+  postcode              String?
+  
+  // Emergency Contact Status
+  isEmergencyContact    Boolean      @default(true)
+  priority              Int?         // 1 = primary contact, 2 = secondary
+  
+  // Communication Preferences
+  preferredContact      ContactMethod @default(EMAIL)
+  canReceiveSMS         Boolean      @default(true)
+  canReceiveEmail       Boolean      @default(true)
+  canReceivePhoneCalls  Boolean      @default(true)
+  
+  // School Involvement
+  canCollectChild       Boolean      @default(true)
+  canConsentToTrips     Boolean      @default(true)
+  canAccessOnlineInfo   Boolean      @default(true)
+  
+  // Children Relationships
+  parentStudents        ParentStudent[] // Links to children
+  
+  // RBAC
+  userRoles             UserRole[]
+  
+  // Audit
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+  
+  // Relationships
+  school                School       @relation(fields: [schoolId], references: [id])
+  user                  User         @relation(fields: [userId], references: [id])
+  
+  @@index([schoolId])
+  @@index([email])
+  @@map("parents")
+}
+
+enum ContactMethod {
+  EMAIL                 // Prefer email contact
+  SMS                   // Prefer text messages
+  PHONE                 // Prefer phone calls
+  APP_NOTIFICATION      // Prefer app notifications
+}
+
+model SchoolAdmin {
+  id                    String       @id @default(cuid())
+  schoolId              String       // Tenant isolation
+  userId                String       @unique
+  
+  // Identity
+  firstName             String
+  lastName              String
+  jobTitle              String       // "Head Teacher", "Deputy Head", "School Business Manager"
+  
+  // Administrative Level
+  adminLevel            AdminLevel   @default(SCHOOL_ADMIN)
+  
+  // Permissions
+  canManageUsers        Boolean      @default(false)
+  canManageClasses      Boolean      @default(false)
+  canManageClubs        Boolean      @default(false)
+  canViewAnalytics      Boolean      @default(true)
+  canManageSettings     Boolean      @default(false)
+  canExportData         Boolean      @default(false)
+  
+  // System Access
+  canAccessAllClasses   Boolean      @default(false)
+  canViewAllStudents    Boolean      @default(false)
+  canModifyHomework     Boolean      @default(false)
+  
+  // RBAC
+  userRoles             UserRole[]
+  
+  // Audit
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+  
+  // Relationships
+  school                School       @relation(fields: [schoolId], references: [id])
+  user                  User         @relation(fields: [userId], references: [id])
+  
+  @@index([schoolId])
+  @@index([adminLevel])
+  @@map("school_admins")
+}
+
+enum AdminLevel {
+  SUPER_ADMIN           // Platform super admin (across schools)
+  SCHOOL_ADMIN          // Full school administration
+  OFFICE_ADMIN          // Administrative tasks only
+  DATA_MANAGER          // Data and reporting focus
+  SYSTEM_ADMIN          // Platform configuration
+  CLUB_ADMIN            // Club and homework management
+}
+
+// Complex family relationships including step-parents and custody arrangements
+model ParentStudent {
+  id                    String       @id @default(cuid())
+  schoolId              String       // Tenant isolation
+  parentId              String
+  studentId             String
+  
+  // Relationship Details
+  relationshipType      ParentType
+  isPrimaryContact      Boolean      @default(false)
+  isEmergencyContact    Boolean      @default(true)
+  
+  // Legal & Consent
+  hasParentalResponsibility Boolean  @default(true)
+  canGiveConsent        Boolean      @default(true)
+  canCollectChild       Boolean      @default(true)
+  canAccessRecords      Boolean      @default(true)
+  
+  // Communication
+  receivesReports       Boolean      @default(true)
+  receivesNotifications Boolean      @default(true)
+  canContactTeachers    Boolean      @default(true)
+  
+  // Custody & Access (if relevant)
+  custodyArrangement    String?      // Notes about custody
+  restrictedAccess      Boolean      @default(false)
+  accessNotes           String?      // Court orders, restrictions etc.
+  
+  // Audit
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+  
+  // Relationships
+  school                School       @relation(fields: [schoolId], references: [id])
+  parent                Parent       @relation(fields: [parentId], references: [id])
+  student               Student      @relation(fields: [studentId], references: [id])
+  
+  @@unique([parentId, studentId])
+  @@index([schoolId])
+  @@index([studentId])
+  @@index([parentId])
+  @@map("parent_students")
+}
+
+enum ParentType {
+  MOTHER                // Biological mother
+  FATHER                // Biological father
+  STEP_MOTHER           // Step mother
+  STEP_FATHER           // Step father
+  GUARDIAN              // Legal guardian
+  CARER                 // Foster carer
+  GRANDPARENT           // Grandparent
+  AUNT_UNCLE            // Aunt or uncle
+  SIBLING               // Older sibling
+  OTHER                 // Other relationship
+}
+
+// ============================================================================
+// EDUCATIONAL STRUCTURE (UK SYSTEM)
+// ============================================================================
+
+model Class {
+  id                    String       @id @default(cuid())
+  schoolId              String       // Tenant isolation
+  
+  // Class Identity & Structure
+  name                  String       // "5B", "Year 3/4 Mixed"
+  displayName           String?      // Optional friendly name: "The Dragons"
+  yearGroups            Int[]        // [3, 4] for mixed Year 3/4 class
+  keyStages             KeyStage[]   // [KS1, KS2] for mixed key stage classes
+  
+  // Academic Structure
+  classType             ClassType    @default(FORM)
+  subject               String?      // For secondary: "Mathematics", "English"
+  setLevel              String?      // For secondary sets: "Set 1", "Top Set"
+  academicYear          String       // "2024-2025"
+  
+  // UK School House System
+  houseGroup            String?      // "Red House", "Dragons"
+  houseColor            String?      // Hex color for house branding
+  
+  // Class Configuration
+  capacity              Int?         // Maximum number of students
+  isActive              Boolean      @default(true)
+  classroom             String?      // Physical room: "Room 12"
+  
+  // Gamification
+  clubsEnabled          Boolean      @default(true)
+  leaderboardEnabled    Boolean      @default(true)
+  
+  // Relationships
+  school                School       @relation(fields: [schoolId], references: [id])
+  teacherClasses        TeacherClass[]
+  students              Student[]
+  classClubLevels       ClassClubLevel[]
+  
+  @@index([schoolId])
+  @@index([schoolId, yearGroups])
+  @@index([schoolId, isActive])
+  @@map("classes")
+}
+
+enum ClassType {
+  FORM          // Primary form class / tutor group
+  SUBJECT       // Secondary subject-specific class
+  SET           // Ability-grouped class
+  MIXED         // Mixed-age class (small schools)
+  INTERVENTION  // Support/SEN intervention group
+  CLUB          // Extra-curricular club class
+  NURTURE       // Nurture group for pastoral support
+}
+
+enum KeyStage {
+  EYFS          // Early Years Foundation Stage
+  KS1           // Key Stage 1 (Years 1-2)
+  KS2           // Key Stage 2 (Years 3-6)
+  KS3           // Key Stage 3 (Years 7-9)
+  KS4           // Key Stage 4 (Years 10-11)
+  KS5           // Key Stage 5 (Years 12-13)
+}
+
+// Teaching assignments with roles and subject responsibilities
+model TeacherClass {
+  id                    String       @id @default(cuid())
+  schoolId              String       // Tenant isolation
+  teacherId             String
+  classId               String
+  
+  // Teaching Role
+  role                  ClassRole    @default(CLASS_TEACHER)
+  isPrimaryTeacher      Boolean      @default(false)
+  
+  // Subject & Time Allocation
+  subjects              String[]     // ["Mathematics", "English"]
+  timeAllocation        Int?         // Percentage of time with this class
+  
+  // Scheduling
+  timetableSlots        Json?        // When they teach this class
+  
+  // Permissions for this class
+  canMarkHomework       Boolean      @default(true)
+  canAssignClubs        Boolean      @default(true)
+  canViewProgress       Boolean      @default(true)
+  canContactParents     Boolean      @default(true)
+  
+  // Temporal Assignment
+  startDate             DateTime     @default(now())
+  endDate               DateTime?    // When assignment ends
+  isActive              Boolean      @default(true)
+  
+  // Audit
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+  
+  // Relationships
+  school                School       @relation(fields: [schoolId], references: [id])
+  teacher               Teacher      @relation(fields: [teacherId], references: [id])
+  class                 Class        @relation(fields: [classId], references: [id])
+  
+  @@unique([teacherId, classId, role])
+  @@index([schoolId])
+  @@index([classId, isActive])
+  @@index([teacherId, isActive])
+  @@map("teacher_classes")
+}
+
+enum ClassRole {
+  CLASS_TEACHER         // Main class teacher
+  ASSISTANT_TEACHER     // Teaching assistant
+  SUBJECT_SPECIALIST    // Specialist teacher (e.g., PE, Music)
+  SUPPORT_TEACHER       // SEN support teacher
+  STUDENT_TEACHER       // Trainee/student teacher
+  COVER_TEACHER         // Supply/cover teacher
+  VOLUNTEER             // Volunteer helper
+}
+
+// Subject-based homework clubs with progressive level systems
+model Club {
+  id                    String       @id @default(cuid())
+  schoolId              String       // Tenant isolation
+  
+  // Club Identity
+  name                  String       // "Number Club", "Reading Club"
+  description           String?      // What the club teaches
+  clubType              ClubType     @default(ACADEMIC)
+  subject               String       // "Mathematics", "Reading", "Spelling"
+  
+  // Club Configuration
+  isActive              Boolean      @default(true)
+  ageGroups             Int[]        // [3,4,5,6] - which year groups can participate
+  keyStages             KeyStage[]   // [KS1, KS2] - which key stages
+  
+  // Progression System
+  hasLevels             Boolean      @default(true)
+  levelNaming           String?      // "Number Club {level} - {tier}" pattern
+  customLevels          Boolean      @default(false)
+  
+  // Evidence & Tracking
+  evidenceType          ClubEvidenceType
+  logbookRequired       Boolean      @default(false)
+  parentInvolvement     Boolean      @default(false)
+  
+  // Buddy System Configuration
+  maxBuddyMembers       Int          @default(3)     // 0 = no buddy groups allowed
+  buddyGroupsEnabled    Boolean      @default(true)
+  
+  // Gamification
+  xpPerCompletion       Int          @default(10)
+  streakEnabled         Boolean      @default(true)
+  
+  // Visual & Branding
+  iconUrl               String?
+  color                 String       @default("#3B82F6")
+  
+  // Administrative
+  createdBy             String
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+  
+  // Relationships
+  school                School       @relation(fields: [schoolId], references: [id])
+  clubLevels            ClubLevel[]
+  classClubLevels       ClassClubLevel[]
+  studentClubProgress   StudentClubProgress[]
+  homeworkCompletions   HomeworkCompletion[]
+  streakPauses          StreakPause[]
+  streaks               StudentStreak[]
+  dailyStreakRecords    DailyStreakRecord[]
+  buddyGroups           BuddyGroup[]
+  learningPointsBalances LearningPointsBalance[]
+  learningPointsTransactions LearningPointsTransaction[]
+  weeklyLPSnapshots     WeeklyLearningPointsSnapshot[]
+  studentClubLevels     StudentClubLevel[]
+  clubLevelValues       ClubLevelValue[]
+  fuelTransactions      FuelTransaction[]
+  studentFuelBalances   StudentFuelBalance[]
+  achievements          Achievement[]
+  studentAchievements   StudentAchievement[]
+  stickers              Sticker[]
+  
+  @@index([schoolId])
+  @@index([schoolId, isActive])
+  @@index([schoolId, clubType])
+  @@map("clubs")
+}
+
+enum ClubType {
+  NUMBER        // Number/Mathematics clubs
+  READING       // Reading clubs with reading logs
+  SPELLING      // Spelling clubs with word lists
+  WRITING       // Creative writing clubs
+  SCIENCE       // Science investigation clubs
+  TOPIC         // Cross-curricular topic clubs
+  SKILL         // Life skills, problem solving
+  WELLBEING     // Social/emotional learning
+}
+
+enum ClubEvidenceType {
+  PHOTO               // Photo evidence of completed work
+  READING_LOG         // Reading log with books/pages/comments
+  COMPLETION_MARK     // Simple tick/completion marker
+  AUDIO_RECORDING     // Voice recording (reading aloud)
+  WRITTEN_WORK        // Uploaded written work
+  TEACHER_OBSERVED    // Teacher observed during school time
+}
+
+// This is just the beginning - we need many more tables based on the documentation
+// Let me continue in separate files due to length...

@@ -1,0 +1,79 @@
+# GitHub Branch Protection Configuration
+# This file documents the recommended branch protection rules
+# Apply these settings manually in GitHub repository settings
+
+master:
+  protection:
+    required_status_checks:
+      strict: true
+      contexts:
+        - "ci/lint"
+        - "ci/typecheck" 
+        - "ci/test"
+        - "ci/e2e"
+        - "ci/security-scan"
+        - "ci/accessibility"
+        - "ci/compliance-check"
+    enforce_admins: true
+    required_pull_request_reviews:
+      required_approving_review_count: 2
+      dismiss_stale_reviews: true
+      require_code_owner_reviews: true
+      restrictions:
+        users: []
+        teams: ["tech-leads", "senior-developers"]
+    restrictions:
+      users: []
+      teams: ["admins"]
+    required_linear_history: true
+    allow_force_pushes: false
+    allow_deletions: false
+
+develop:
+  protection:
+    required_status_checks:
+      strict: true
+      contexts:
+        - "ci/lint"
+        - "ci/typecheck"
+        - "ci/test"
+        - "ci/security-scan"
+    enforce_admins: false
+    required_pull_request_reviews:
+      required_approving_review_count: 1
+      dismiss_stale_reviews: true
+      require_code_owner_reviews: false
+    restrictions: null
+    required_linear_history: false
+    allow_force_pushes: false
+    allow_deletions: false
+
+# Pattern-based protection for release and hotfix branches
+"release/*":
+  protection:
+    required_status_checks:
+      strict: true
+      contexts:
+        - "ci/lint"
+        - "ci/typecheck"
+        - "ci/test"
+        - "ci/e2e"
+        - "ci/security-scan"
+    required_pull_request_reviews:
+      required_approving_review_count: 2
+      dismiss_stale_reviews: true
+      require_code_owner_reviews: true
+
+"hotfix/*":
+  protection:
+    required_status_checks:
+      strict: true
+      contexts:
+        - "ci/lint"
+        - "ci/typecheck"
+        - "ci/test"
+        - "ci/security-scan"
+    required_pull_request_reviews:
+      required_approving_review_count: 1  # Reduced for urgent fixes
+      dismiss_stale_reviews: true
+      require_code_owner_reviews: true

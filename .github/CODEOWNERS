@@ -1,0 +1,37 @@
+# Global code owners
+* @study-streaks/tech-leads
+
+# Core application files
+/apps/web/ @study-streaks/frontend-team @study-streaks/tech-leads
+/apps/admin/ @study-streaks/backend-team @study-streaks/tech-leads
+
+# Database and authentication
+/packages/database/ @study-streaks/backend-team @study-streaks/tech-leads
+/packages/auth/ @study-streaks/security-team @study-streaks/tech-leads
+
+# Compliance and security
+/packages/compliance/ @study-streaks/security-team @study-streaks/legal-team
+/docs/Product\ Management/Compliance\ and\ Data\ Governance.md @study-streaks/legal-team
+/docs/Boundary\ Policies\ &\ Rules/ @study-streaks/tech-leads @study-streaks/legal-team
+
+# Infrastructure and deployment
+/infrastructure/ @study-streaks/devops-team @study-streaks/tech-leads
+/docker-compose.yml @study-streaks/devops-team
+/.github/ @study-streaks/devops-team @study-streaks/tech-leads
+
+# Configuration files
+/package.json @study-streaks/tech-leads
+/nx.json @study-streaks/tech-leads
+/tsconfig*.json @study-streaks/tech-leads
+/.gitignore @study-streaks/tech-leads
+
+# Documentation
+/docs/ @study-streaks/tech-leads
+/README.md @study-streaks/tech-leads
+/CLAUDE.md @study-streaks/tech-leads
+
+# Database schemas (require extra scrutiny)
+/docs/Database\ Schema/ @study-streaks/backend-team @study-streaks/tech-leads @study-streaks/legal-team
+
+# UK educational compliance
+/docs/Product\ Management/Personas/ @study-streaks/product-team @study-streaks/legal-team

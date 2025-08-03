@@ -1,0 +1,24 @@
+{
+  "name": "@study-streaks/utils",
+  "version": "0.0.1",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "eslint src --ext .ts,.tsx",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^3.22.0",
+    "date-fns": "^2.30.0",
+    "lodash": "^4.17.21",
+    "clsx": "^2.0.0",
+    "@study-streaks/config": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.0",
+    "@types/node": "^18.16.9",
+    "typescript": "^5.8.2"
+  }
+}

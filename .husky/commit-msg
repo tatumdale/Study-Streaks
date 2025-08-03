@@ -1,0 +1,35 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Validate commit message format
+commit_message_file=$1
+commit_message=$(cat $commit_message_file)
+
+# Conventional Commits pattern
+conventional_pattern="^(feat|fix|docs|style|refactor|test|chore|perf|ci|build)(\([a-z0-9-]+\))?: .{1,50}"
+
+# Check if commit message follows conventional commits
+if ! echo "$commit_message" | grep -qE "$conventional_pattern"; then
+    echo "❌ Invalid commit message format!"
+    echo ""
+    echo "Commit message must follow Conventional Commits format:"
+    echo "  <type>(<scope>): <description>"
+    echo ""
+    echo "Examples:"
+    echo "  feat(auth): add user login functionality"
+    echo "  fix(homework): resolve streak calculation bug"
+    echo "  docs(api): update authentication endpoints"
+    echo ""
+    echo "Valid types: feat, fix, docs, style, refactor, test, chore, perf, ci, build"
+    echo "Valid scopes: auth, homework, streaks, gamification, clubs, admin, api, ui, db, compliance"
+    echo ""
+    exit 1
+fi
+
+# Check for issue reference (optional but recommended)
+if ! echo "$commit_message" | grep -qE "SSP-[0-9]+|#[0-9]+|closes #[0-9]+|fixes #[0-9]+"; then
+    echo "⚠️  Warning: No issue reference found (SSP-123, #123, closes #123, fixes #123)"
+    echo "   Consider adding an issue reference for better traceability"
+fi
+
+echo "✅ Commit message format is valid"
