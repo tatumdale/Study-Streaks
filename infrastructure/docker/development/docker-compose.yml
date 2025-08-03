@@ -4,9 +4,9 @@ services:
     image: postgres:15-alpine
     container_name: studystreaks-postgres
     environment:
-      POSTGRES_DB: studystreaks_dev
-      POSTGRES_USER: dev
-      POSTGRES_PASSWORD: devpass123
+      POSTGRES_DB: ${POSTGRES_DB:-studystreaks_dev}
+      POSTGRES_USER: ${POSTGRES_USER:-dev}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me_dev_password_123}
       POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "5432:5432"
@@ -14,7 +14,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U dev -d studystreaks_dev"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-dev} -d ${POSTGRES_DB:-studystreaks_dev}"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -29,7 +29,7 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
-    command: redis-server --appendonly yes --requirepass devpass123
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-change_me_redis_password_123}
     healthcheck:
       test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
       interval: 30s
@@ -43,9 +43,9 @@ services:
     image: rediscommander/redis-commander:latest
     container_name: studystreaks-redis-ui
     environment:
-      REDIS_HOSTS: "local:redis:6379:0:devpass123"
-      HTTP_USER: admin
-      HTTP_PASSWORD: admin
+      REDIS_HOSTS: "local:redis:6379:0:${REDIS_PASSWORD:-change_me_redis_password_123}"
+      HTTP_USER: ${REDIS_COMMANDER_USER:-admin}
+      HTTP_PASSWORD: ${REDIS_COMMANDER_PASSWORD:-change_me_admin_password}
     ports:
       - "8081:8081"
     depends_on:
@@ -60,10 +60,10 @@ services:
       dockerfile: Dockerfile.dev
     container_name: studystreaks-api
     environment:
-      NODE_ENV: development
-      DATABASE_URL: postgresql://dev:devpass123@postgres:5432/studystreaks_dev
-      REDIS_URL: redis://devpass123@redis:6379
-      JWT_SECRET: dev-jwt-secret-change-in-production
+      NODE_ENV: ${NODE_ENV:-development}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-dev}:${POSTGRES_PASSWORD:-change_me_dev_password_123}@postgres:5432/${POSTGRES_DB:-studystreaks_dev}
+      REDIS_URL: redis://:${REDIS_PASSWORD:-change_me_redis_password_123}@redis:6379
+      JWT_SECRET: ${JWT_SECRET:-dev-jwt-secret-change-in-production}
     ports:
       - "3001:3001"
     volumes:
@@ -86,9 +86,9 @@ services:
       dockerfile: Dockerfile.dev
     container_name: studystreaks-background
     environment:
-      NODE_ENV: development
-      DATABASE_URL: postgresql://dev:devpass123@postgres:5432/studystreaks_dev
-      REDIS_URL: redis://devpass123@redis:6379
+      NODE_ENV: ${NODE_ENV:-development}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-dev}:${POSTGRES_PASSWORD:-change_me_dev_password_123}@postgres:5432/${POSTGRES_DB:-studystreaks_dev}
+      REDIS_URL: redis://:${REDIS_PASSWORD:-change_me_redis_password_123}@redis:6379
     volumes:
       - ../../../services/background:/app
       - /app/node_modules

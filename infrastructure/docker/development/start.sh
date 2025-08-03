@@ -11,6 +11,16 @@ set -e
 
 echo "🚀 Starting StudyStreaks Development Environment"
 
+# Check if .env file exists
+if [ ! -f .env ]; then
+    echo "⚠️  Warning: .env file not found!"
+    echo "   Copy .env.example to .env and configure your passwords:"
+    echo "   cp .env.example .env"
+    echo ""
+    echo "   Using default values for now (NOT recommended for production-like environments)"
+    echo ""
+fi
+
 # Default to core services
 SERVICES=""
 
@@ -44,15 +54,15 @@ echo "✅ Development environment is ready!"
 echo ""
 echo "📊 Service URLs:"
 echo "  PostgreSQL: localhost:5432"
-echo "    Database: studystreaks_dev"
-echo "    User: dev"
-echo "    Password: devpass123"
+echo "    Database: ${POSTGRES_DB:-studystreaks_dev}"
+echo "    User: ${POSTGRES_USER:-dev}"
+echo "    Password: [configured via .env file]"
 echo ""
 echo "  Redis: localhost:6379"
-echo "    Password: devpass123"
+echo "    Password: [configured via .env file]"
 echo ""
 echo "  Redis Commander (UI): http://localhost:8081"
-echo "    User: admin / Password: admin"
+echo "    Credentials: [configured via .env file]"
 echo ""
 
 if [[ "$*" == *"api"* ]]; then
