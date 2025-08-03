@@ -385,7 +385,12 @@ dist
 *.old
 *.orig
 *_backup
-*_archive# Prisma generated files
+*_archive
+
+# Claude AI Assistant Files
+CLAUDE.md
+
+# Prisma generated files
 packages/database/src/generated/
 packages/database/node_modules/
 **/libquery_engine-*.node
