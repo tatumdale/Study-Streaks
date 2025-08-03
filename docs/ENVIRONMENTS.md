@@ -54,8 +54,8 @@ nx dev web
 ```
 
 **Test Credentials:**
-- **Admin**: `admin@oakwood-primary.co.uk` / `Admin123!`
-- **Teacher**: `j.smith@oakwood-primary.co.uk` / `Teacher123!`
+- Test user credentials are available in the local environment setup
+- Contact system administrator for access credentials
 
 #### 2. Admin Dashboard
 - **Port**: `3001`
@@ -287,15 +287,11 @@ pnpm run typecheck             # Type check all TypeScript
 
 ### Test Accounts
 ```
-Admin User:
-- Email: admin@oakwood-primary.co.uk
-- Password: Admin123!
-- Access: Both main app (3000) and admin dashboard (3001)
-
-Teacher User:
-- Email: j.smith@oakwood-primary.co.uk  
-- Password: Teacher123!
-- Access: Main app (3000) only
+Test Users:
+- Admin user with access to both main app and admin dashboard
+- Teacher user with access to main app only
+- Credentials available in local development environment
+- Contact system administrator for access details
 ```
 
 ## Multi-Tenancy
