@@ -87,6 +87,55 @@ npx nx run database:db:push
 npx nx run database:db:seed
 ```
 
+### Local-Only Files System
+
+This project includes a comprehensive system for managing files that should **never be committed to git**. Use this for sensitive documentation, personal notes, temporary files, and work-in-progress content.
+
+#### Quick Usage
+```bash
+# Store sensitive documentation locally
+cp migration-plan.md .local/docs/
+
+# Create personal development notes
+echo "Feature idea: Add notification system" > .local/notes/ideas.md
+
+# Use templates for consistent formatting
+cp .local/templates/jira-task.md .local/temp/new-feature-issue.md
+
+# Verify files are ignored by git
+git status  # Should not show .local/ files
+```
+
+#### Protected File Patterns
+The following are automatically ignored by git:
+- **Directories**: `.local/`, `local/`, `.private/`, `.notes/`, `.scratch/`
+- **Files**: `*.local.*`, `*.private`, `*.notes`, `*.draft`, `*.wip`, `*.temp`
+- **Specific**: `README.local.md`, `NOTES.md`, `SCRATCH.md`, `JIRA-ISSUE-*.md`
+
+#### Directory Structure
+```
+.local/
+├── README.md              # Documentation for local system
+├── docs/                  # Local documentation
+├── scripts/               # Helper scripts
+├── notes/                 # Personal notes
+├── temp/                  # Temporary files
+├── configs/               # Local configuration overrides
+└── templates/             # File templates
+    ├── jira-task.md       # JIRA issue template
+    └── migration-plan.md  # Migration plan template
+```
+
+#### When to Use Local Files
+- **Migration documentation** that contains sensitive details
+- **JIRA issue drafts** before they're ready to publish
+- **Personal development notes** and observations
+- **Temporary API keys** for testing (prefer .env files for real secrets)
+- **Work-in-progress documentation** that's not ready for the team
+- **Security-related documentation** that should stay local
+
+**Security Note**: Even local files exist on your machine. Be cautious with real production credentials - use proper .env files for actual secrets.
+
 ## Architecture Overview
 
 ### Monorepo Structure
@@ -154,6 +203,40 @@ Required environment variables (see `.env.example`):
 
 ## Development Standards
 
+### AI Assistant Guidelines
+
+**For Claude Code and other AI assistants working with this codebase:**
+
+#### Documentation Strategy
+- **Always use local files** for sensitive documentation (migrations, security plans, JIRA drafts)
+- **Store in `.local/`** directory or use protected naming patterns (`*.local.*`, `*.notes`, `*.draft`)
+- **Reference local templates** in `.local/templates/` for consistent formatting
+- **Never commit** migration plans, security documentation, or JIRA issue content to git
+
+#### Recommended Workflow
+```bash
+# 1. Create documentation locally first
+cp .local/templates/migration-plan.md .local/docs/supabase-migration.md
+
+# 2. Work with sensitive content safely
+echo "Security issue details..." > .local/notes/security-analysis.md
+
+# 3. Verify git protection
+git status  # Should not show .local/ files
+
+# 4. Use local docs for reference
+cat .local/docs/project-notes.md
+```
+
+#### File Creation Priority
+1. **First choice**: Use `.local/` directory for any sensitive or temporary content
+2. **Second choice**: Use protected naming patterns (`*.local.md`, `*.draft`, `*.notes`)
+3. **Last resort**: Create files that will be committed (only for permanent project documentation)
+
+#### When to Use Local vs Committed Files
+- **Local files**: Migration plans, security documentation, JIRA drafts, personal notes, API keys, temporary analysis
+- **Committed files**: Permanent project documentation, code standards, public guides, team-shared templates
+
 ### Module Boundaries
 Nx enforces strict module boundaries. Apps can import from packages, but packages should not import from apps. Check dependency graph with `npx nx graph`.
 
@@ -187,6 +270,12 @@ Nx enforces strict module boundaries. Apps can import from packages, but package
 - Verify multi-tenancy isolation is maintained
 - Run accessibility tests with jest-axe
 - Validate GDPR compliance for any data handling changes
+
+**Documentation Security:**
+- **Never commit** sensitive documentation (migration plans, security analysis, API keys)
+- **Always use** `.local/` directory or protected file patterns for sensitive content
+- **Verify git status** before committing to ensure no sensitive files are tracked
+- **Use local templates** from `.local/templates/` for consistent documentation
 
 ## User Context & Personas
 

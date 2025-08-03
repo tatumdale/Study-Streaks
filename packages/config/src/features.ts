@@ -40,12 +40,18 @@ export interface FeatureFlags {
   enableBackgroundJobs: boolean;
 }
 
+export interface ComplianceConfig {
+  gdprEnabled: boolean;
+  dataRetentionDays: number;
+  requireParentalConsent: boolean;
+  enableAuditLogging: boolean;
+}
+
 /**
  * Get feature flags based on environment and configuration
  */
 export function getFeatureFlags(): FeatureFlags {
   const isDevelopment = env.NODE_ENV === "development";
-  const isProduction = env.NODE_ENV === "production";
   
   return {
     // Core features - always enabled based on env vars

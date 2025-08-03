@@ -17,6 +17,12 @@
     },
     {
       "path": "./packages/utils"
+    },
+    {
+      "path": "./services/api"
+    },
+    {
+      "path": "./apps/admin"
     }
   ]
 }

@@ -25,11 +25,14 @@ export type {
   BadgeType,
   NotificationType,
   ErrorCode,
+} from "./constants";
+
+export type {
   GDPRDataCategory,
   PrivacyLevel,
   AuditEvent,
   LegalBasis,
   DataSubjectRight,
-} from "./constants";
+} from "./compliance";
 
 export type { FeatureFlags, ComplianceConfig } from "./features";

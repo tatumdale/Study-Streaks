@@ -13,6 +13,7 @@
     "dev": "nx run-many --target=dev --parallel=3",
     "dev:web": "nx dev web",
     "dev:admin": "nx dev admin",
+    "dev:api": "nx dev api",
     "build": "nx run-many --target=build --parallel=3",
     "build:web": "nx build web",
     "test": "nx run-many --target=test --parallel=3",

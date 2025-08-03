@@ -36,11 +36,13 @@ if (env.NODE_ENV !== "production") {
 }
 
 /**
- * Supabase client configuration
+ * Supabase client configuration (with new API key system)
+ * Supports both new publishable keys and legacy anon keys
  */
 export const supabase = createClient(
   env.SUPABASE_URL,
-  env.SUPABASE_ANON_KEY,
+  // Use new publishable key if available, fallback to legacy anon key
+  env.SUPABASE_PUBLISHABLE_KEY || env.SUPABASE_ANON_KEY!,
   {
     auth: {
       autoRefreshToken: true,
@@ -56,11 +58,13 @@ export const supabase = createClient(
 );
 
 /**
- * Supabase admin client for server-side operations
+ * Supabase admin client for server-side operations (with new API key system)
+ * Supports both new secret keys and legacy service role keys
  */
 export const supabaseAdmin = createClient(
   env.SUPABASE_URL,
-  env.SUPABASE_SERVICE_ROLE_KEY,
+  // Use new secret key if available, fallback to legacy service role key
+  env.SUPABASE_SECRET_KEY || env.SUPABASE_SERVICE_ROLE_KEY!,
   {
     auth: {
       autoRefreshToken: false,
