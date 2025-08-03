@@ -5,14 +5,8 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "citext";
 
--- Create development user if not exists
-DO $$
-BEGIN
-   IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'studystreaks_dev') THEN
-      CREATE ROLE studystreaks_dev WITH LOGIN PASSWORD 'devpass123';
-   END IF;
-END
-$$;
+-- Create development user if not exists (password set via environment variables)
+-- Note: Password is configured through POSTGRES_PASSWORD environment variable
 
 -- Grant necessary permissions
 GRANT ALL PRIVILEGES ON DATABASE studystreaks_dev TO studystreaks_dev;

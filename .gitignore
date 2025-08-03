@@ -45,6 +45,10 @@ lerna-debug.log*
 .env.production.local
 .env*.local
 
+# Docker environment files (protect from committing passwords)
+infrastructure/docker/**/.env
+infrastructure/docker/**/.env.local
+
 # IDE - VSCode
 .vscode/*
 !.vscode/extensions.json
