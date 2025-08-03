@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 
 export default function Index() {
@@ -37,7 +37,7 @@ export default function Index() {
               <p><strong>Email:</strong> {session.user.email}</p>
             </div>
             
-            <div className="mt-6">
+            <div className="mt-6 space-y-3">
               <Link
                 href={
                   session.user.userType === "teacher"
@@ -52,6 +52,12 @@ export default function Index() {
               >
                 Go to Dashboard
               </Link>
+              <button
+                onClick={() => signOut()}
+                className="w-full bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition duration-200"
+              >
+                Sign Out
+              </button>
             </div>
           </div>
         ) : (

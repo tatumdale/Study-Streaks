@@ -393,6 +393,47 @@ CLAUDE.md
 # Security Documentation (keep local only)
 SECURITY-BREACH-RESPONSE.md
 
+# Migration Documentation (keep local only)
+*migration*.md
+*MIGRATION*.md
+*supabase*.md
+*SUPABASE*.md
+JIRA-ISSUE-*.md
+
+# Local-only files and directories
+.local/
+local/
+*.local.*
+.private/
+private/
+.notes/
+notes/
+.scratch/
+scratch/
+.temp-docs/
+temp-docs/
+.dev-notes/
+dev-notes/
+.personal/
+personal/
+
+# Local documentation that shouldn't be committed
+README.local.md
+NOTES.md
+TODO.local.md
+SCRATCH.md
+DEV-NOTES.md
+PERSONAL-NOTES.md
+
+# Temporary work files
+*.draft
+*.wip
+*.temp
+*.local
+*.private
+*.personal
+*.notes
+
 # Prisma generated files
 packages/database/src/generated/
 packages/database/node_modules/
