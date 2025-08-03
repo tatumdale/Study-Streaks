@@ -87,6 +87,59 @@ npx nx run database:db:push
 npx nx run database:db:seed
 ```
 
+## JIRA Integration & AI Tool Policy
+
+### JIRA Ticket Format
+All JIRA tickets use the format: **CPG-xxx** (Comprehensive Primary Gamification)
+
+Examples:
+- `CPG-123` - User Dashboard Redesign  
+- `CPG-124` - Fix Streak Calculation Bug
+- `CPG-125` - GDPR Data Deletion Feature
+
+### Manual Label Policy for AI Tools
+
+**CRITICAL**: Before working on any JIRA ticket, AI tools (Claude Code, Cursor, etc.) MUST check for the "Manual" label.
+
+#### Manual Label Rules
+- **Label**: `Manual` (case-sensitive)
+- **Purpose**: Requires explicit human approval before AI can work on the issue
+- **Scope**: Issues marked "Manual" cannot be worked on autonomously by AI tools
+
+#### AI Tool Behavior
+```yaml
+JIRA Issue Status Check:
+  CPG-123 (no labels): ✅ AI can work autonomously
+  CPG-124 + "Manual": ❌ STOP - Ask user for explicit permission
+  CPG-125 + "Manual" + user approval: ✅ Proceed with work
+```
+
+#### When Manual Label is Used
+- **Sensitive Features**: Authentication, payments, data privacy
+- **Complex Architecture**: Major system changes
+- **UI/UX Critical**: User-facing changes requiring design review
+- **Security Concerns**: Any functionality touching user data
+- **Client Requirements**: Features needing specific business approval
+
+#### User Override Process
+When AI encounters a "Manual" labeled issue:
+1. **Stop and notify**: "CPG-123 has 'Manual' label - requires your approval"
+2. **Wait for confirmation**: User must explicitly say "yes" or "proceed"  
+3. **Document override**: Log that user approved the work
+4. **Proceed**: AI can now work with full permissions
+
+This enables **autonomous AI development** while maintaining **human control** over sensitive features.
+
+### Branching Strategy
+All branches must follow JIRA integration format:
+```bash
+feature/CPG-123-user-dashboard-redesign
+bugfix/CPG-124-streak-calculation-fix
+hotfix/CPG-125-gdpr-data-deletion-patch
+```
+
+See `docs/git-branching-strategy.md` for complete branching guidelines.
+
 ### Local-Only Files System
 
 This project includes a comprehensive system for managing files that should **never be committed to git**. Use this for sensitive documentation, personal notes, temporary files, and work-in-progress content.
