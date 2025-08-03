@@ -385,4 +385,8 @@ dist
 *.old
 *.orig
 *_backup
-*_archive
+*_archive# Prisma generated files
+packages/database/src/generated/
+packages/database/node_modules/
+**/libquery_engine-*.node
+**/query_engine-*.node
