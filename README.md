@@ -59,6 +59,8 @@ pnpm run dev
 open http://localhost:3000
 ```
 
+> **New Developer?** Check out our [Getting Started Guide](GETTING-STARTED.md) for detailed setup instructions.
+
 ### Available Commands
 
 ```bash
@@ -167,7 +169,7 @@ Study-Streaks/
 | **Product Management** | [`docs/Product Management/`](docs/Product%20Management/) | User personas and requirements |
 
 ### Quick References
-- **[Getting Started Guide](docs/development/getting-started.md)** - First-time setup
+- **[Getting Started Guide](GETTING-STARTED.md)** - First-time setup for new developers
 - **[Environment Setup](docs/development/environment-setup.md)** - Development environment
 - **[API Documentation](docs/api/README.md)** - REST API reference
 - **[Database Schema](docs/Database%20Schema/README.md)** - Data model overview
