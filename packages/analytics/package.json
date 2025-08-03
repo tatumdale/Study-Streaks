@@ -1,0 +1,10 @@
+{
+  "name": "@study-streaks/analytics",
+  "version": "0.0.1",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.0.0",
+    "date-fns": "^2.30.0"
+  }
+}

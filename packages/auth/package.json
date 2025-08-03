@@ -1,0 +1,19 @@
+{
+  "name": "@study-streaks/auth",
+  "version": "0.0.1",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "dependencies": {
+    "next-auth": "^4.24.11",
+    "@auth/prisma-adapter": "^1.6.0",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "@study-streaks/database": "workspace:*",
+    "@study-streaks/config": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.6",
+    "typescript": "^5.0.0"
+  }
+}

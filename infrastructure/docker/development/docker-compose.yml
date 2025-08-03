@@ -1,0 +1,113 @@
+services:
+  # PostgreSQL for local development (Supabase for staging/prod)
+  postgres:
+    image: postgres:15-alpine
+    container_name: studystreaks-postgres
+    environment:
+      POSTGRES_DB: studystreaks_dev
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: devpass123
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dev -d studystreaks_dev"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - studystreaks-network
+
+  # Redis for sessions, caching, and job queues
+  redis:
+    image: redis:7-alpine
+    container_name: studystreaks-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --requirepass devpass123
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - studystreaks-network
+
+  # Redis Commander for Redis management (development only)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: studystreaks-redis-ui
+    environment:
+      REDIS_HOSTS: "local:redis:6379:0:devpass123"
+      HTTP_USER: admin
+      HTTP_PASSWORD: admin
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    networks:
+      - studystreaks-network
+
+  # API Service (when implemented)
+  api:
+    build:
+      context: ../../../services/api
+      dockerfile: Dockerfile.dev
+    container_name: studystreaks-api
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://dev:devpass123@postgres:5432/studystreaks_dev
+      REDIS_URL: redis://devpass123@redis:6379
+      JWT_SECRET: dev-jwt-secret-change-in-production
+    ports:
+      - "3001:3001"
+    volumes:
+      - ../../../services/api:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - studystreaks-network
+    profiles:
+      - api  # Only start when specifically requested
+
+  # Background Jobs Service (when implemented)
+  background:
+    build:
+      context: ../../../services/background
+      dockerfile: Dockerfile.dev
+    container_name: studystreaks-background
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://dev:devpass123@postgres:5432/studystreaks_dev
+      REDIS_URL: redis://devpass123@redis:6379
+    volumes:
+      - ../../../services/background:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - studystreaks-network
+    profiles:
+      - background  # Only start when specifically requested
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  studystreaks-network:
+    driver: bridge
