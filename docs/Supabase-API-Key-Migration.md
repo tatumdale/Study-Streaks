@@ -161,7 +161,7 @@ If issues occur, you can immediately rollback by:
 2. **Environment Setup**:
    - Always use environment variables, never hardcode keys
    - Use `.env.local` for local development
-   - Keep `.env.example` with placeholder values
+   - Document required environment variables in project documentation
 
 3. **Security**:
    - Never expose secret keys in frontend code

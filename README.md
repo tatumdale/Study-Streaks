@@ -1,101 +1,228 @@
-# 
+# StudyStreaks
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+**Gamified Homework Motivation Platform for UK Primary Schools**
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+StudyStreaks is a comprehensive educational platform designed specifically for UK primary schools to motivate homework completion through gamification, buddy systems, and real-time progress tracking. Built with strict GDPR compliance and the ICO Children's Code in mind.
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/next?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Next.js](https://img.shields.io/badge/Next.js-14-000000?style=flat&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-5.22-2D3748?style=flat&logo=prisma&logoColor=white)](https://www.prisma.io/)
 
-## Run tasks
+## 🏫 Platform Overview
 
-To run the dev server for your app, use:
+### Core Features
+- **📚 Subject-based Homework Clubs**: Maths, Reading, Spelling, and Topic clubs with progressive levels
+- **👫 Buddy System**: Students work in small groups of 2-3 for motivation and support
+- **🏆 Gamification**: Experience points, streaks, leaderboards, and achievement badges
+- **📱 Multi-role Interface**: Dedicated dashboards for students, parents, teachers, and school admins
+- **🔒 GDPR Compliant**: Built for UK educational data protection requirements
+- **🏗️ Multi-tenant Architecture**: Secure school-by-school data isolation
 
-```sh
-npx nx dev web
+### Target Users
+- **Primary Schools** (Reception - Year 6) across the UK
+- **Teachers** managing homework assignments and student progress
+- **Students** (ages 4-11) completing homework and building streaks
+- **Parents** supporting their children's learning journey
+- **School Administrators** overseeing platform usage and compliance
+
+## 🚀 Quick Start
+
+### Prerequisites
+- **Node.js** 18+ and **pnpm** 8+
+- **Docker** and **Docker Compose** (for local development)
+- **PostgreSQL** 15+ (provided via Docker)
+- **Redis** (provided via Docker)
+
+### Development Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/tatumdale/Study-Streaks.git
+cd Study-Streaks
+
+# Install dependencies
+pnpm install
+
+# Start local infrastructure
+pnpm run docker:up
+
+# Setup database
+pnpm run db:generate
+pnpm run db:push
+pnpm run db:seed
+
+# Start development servers
+pnpm run dev
+
+# Open application
+open http://localhost:3000
 ```
 
-To create a production bundle:
+### Available Commands
 
-```sh
-npx nx build web
+```bash
+# Development
+pnpm run dev              # Start all development servers
+pnpm run dev:web          # Start web application only
+pnpm run dev:admin        # Start admin dashboard only
+
+# Database Operations
+pnpm run db:generate      # Generate Prisma client
+pnpm run db:push          # Push schema to database
+pnpm run db:migrate       # Run migrations
+pnpm run db:seed          # Seed with test data
+pnpm run db:studio        # Open Prisma Studio
+
+# Testing & Quality
+pnpm run test             # Run all tests
+pnpm run test:coverage    # Run tests with coverage
+pnpm run lint             # Lint codebase
+pnpm run typecheck        # TypeScript validation
+pnpm run format           # Format code
+
+# Build & Deploy
+pnpm run build            # Build for production
+pnpm run clean            # Clean build artifacts
 ```
 
-To see all available targets to run for a project, run:
+## 🏗️ Architecture
 
-```sh
-npx nx show project web
+### Technology Stack
+
+**Frontend & UI**
+- **Next.js 14** with App Router and React 18
+- **TypeScript** for type safety
+- **Tailwind CSS** for styling
+- **Shadcn/ui** component library
+- **Framer Motion** for animations
+
+**Backend & Database**
+- **Next.js API Routes** for backend logic
+- **Prisma ORM** with PostgreSQL
+- **NextAuth.js** for authentication
+- **Multi-tenant architecture** with Row Level Security
+
+**Development & DevOps**
+- **Nx Monorepo** for workspace management
+- **Docker Compose** for local development
+- **ESLint & Prettier** for code quality
+- **Husky & lint-staged** for Git hooks
+
+**Key Libraries**
+- **React Hook Form + Zod** for form handling
+- **TanStack Query** for server state
+- **Socket.io** for real-time features
+- **Bull + Redis** for background jobs
+- **Sharp** for image processing
+
+### Project Structure
+
+```
+Study-Streaks/
+├── apps/
+│   ├── web/                 # Main student/parent application
+│   └── admin/               # School administration dashboard
+├── packages/
+│   ├── database/            # Prisma schema and database client
+│   ├── config/              # Environment and feature configuration
+│   └── utils/               # Shared utilities and helpers
+├── docs/                    # Comprehensive documentation
+├── infrastructure/          # Docker and deployment configs
+└── tools/                   # Development and build tools
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+## 🔐 Security & Compliance
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### GDPR & Data Protection
+- **Data Minimisation**: Collect only essential educational data
+- **Consent Management**: Parental consent tracking and withdrawal
+- **Right to be Forgotten**: Automated data deletion workflows
+- **Data Portability**: Export functionality for data subject requests
+- **Audit Logging**: Comprehensive activity tracking
 
-## Add new projects
+### ICO Children's Code Compliance
+- **Age-appropriate Design**: UI/UX designed for children aged 4-11
+- **Privacy by Default**: Minimal data processing, maximum privacy
+- **Transparency**: Clear privacy notices for children and parents
+- **Parental Controls**: Comprehensive oversight and consent management
 
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
+### Security Features
+- **Multi-tenant Isolation**: School-by-school data segregation
+- **Role-based Access Control**: Granular permissions system
+- **JWT Authentication**: Secure session management
+- **API Rate Limiting**: Protection against abuse
+- **Input Validation**: Comprehensive data sanitization
 
-Use the plugin's generator to create new projects.
+## 📚 Documentation
 
-To generate a new application, use:
+| Documentation Type | Location | Purpose |
+|-------------------|----------|---------|
+| **Architecture** | [`docs/architecture/`](docs/architecture/) | System design and technical specifications |
+| **Development** | [`docs/development/`](docs/development/) | Setup guides and development workflows |
+| **API Reference** | [`docs/api/`](docs/api/) | API endpoints and integration guides |
+| **User Guides** | [`docs/user-guides/`](docs/user-guides/) | Role-specific usage instructions |
+| **Compliance** | [`docs/compliance/`](docs/compliance/) | GDPR and ICO Children's Code documentation |
+| **Database Schema** | [`docs/Database Schema/`](docs/Database%20Schema/) | Entity relationships and business logic |
+| **Product Management** | [`docs/Product Management/`](docs/Product%20Management/) | User personas and requirements |
 
-```sh
-npx nx g @nx/next:app demo
-```
+### Quick References
+- **[Getting Started Guide](docs/development/getting-started.md)** - First-time setup
+- **[Environment Setup](docs/development/environment-setup.md)** - Development environment
+- **[API Documentation](docs/api/README.md)** - REST API reference
+- **[Database Schema](docs/Database%20Schema/README.md)** - Data model overview
+- **[Contributing Guidelines](CONTRIBUTING.md)** - Development workflow
 
-To generate a new library, use:
+## 🎯 Current Status
 
-```sh
-npx nx g @nx/react:lib mylib
-```
+**Phase 1 (Current)**: Core Platform Development
+- ✅ Multi-tenant architecture with RLS
+- ✅ Authentication and authorization system
+- ✅ Database schema and migrations
+- ✅ Basic homework club functionality
+- 🔄 Gamification system implementation
+- 🔄 Real-time features and notifications
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+**Phase 2 (Planned)**: Enhanced Features
+- 📋 Advanced analytics and reporting
+- 📋 Parent-teacher communication tools
+- 📋 Mobile application development
+- 📋 School MIS integrations
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+**Phase 3 (Future)**: Scale & Optimize
+- 📋 Multi-school district management
+- 📋 Advanced AI-powered insights
+- 📋 Third-party educational tool integrations
 
-## Set up CI!
+## 🤝 Contributing
 
-### Step 1
+We welcome contributions from educators, developers, and the community. Please read our [Contributing Guidelines](CONTRIBUTING.md) for details on:
 
-To connect to Nx Cloud, run the following command:
+- Development workflow and Git practices
+- Code standards and quality requirements
+- Testing and documentation expectations
+- Issue reporting and feature requests
 
-```sh
-npx nx connect
-```
+### Development Workflow
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/SSP-123-description`
+3. Follow our [code standards](docs/Boundary%20Policies%20&%20Rules/Code%20Standards.md)
+4. Write tests and ensure they pass
+5. Submit a pull request with detailed description
 
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
+## 📄 License
 
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-### Step 2
+## 🆘 Support
 
-Use the following command to configure a CI workflow for your workspace:
+- **Documentation**: [docs/README.md](docs/README.md)
+- **Issues**: [GitHub Issues](https://github.com/tatumdale/Study-Streaks/issues)
+- **Support Email**: support@studystreaks.com
+- **Developer Community**: [GitHub Discussions](https://github.com/tatumdale/Study-Streaks/discussions)
 
-```sh
-npx nx g ci-workflow
-```
+---
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+**StudyStreaks** - Transforming homework from a chore into an adventure for UK primary school children.
 
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/nx-api/next?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+*Built with ❤️ for educators, students, and families across the United Kingdom.*

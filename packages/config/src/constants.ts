@@ -178,3 +178,5 @@ export const SUCCESS_MESSAGES = {
   PROFILE_UPDATED: "Profile updated successfully! ✨",
   CLASS_JOINED: "Welcome to your new class! 👋",
 } as const;
+
+// Note: GDPR-related constants have been moved to compliance.ts to avoid export conflicts

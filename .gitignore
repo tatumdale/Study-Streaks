@@ -390,6 +390,9 @@ dist
 # Claude AI Assistant Files
 CLAUDE.md
 
+# Security Documentation (keep local only)
+SECURITY-BREACH-RESPONSE.md
+
 # Prisma generated files
 packages/database/src/generated/
 packages/database/node_modules/
