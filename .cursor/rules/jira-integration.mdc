@@ -1,0 +1,161 @@
+# JIRA Integration & Manual Label Policy
+
+## CRITICAL: AI Tool Behavior Rules
+
+### 1. Manual Label Check (MANDATORY)
+Before working on any JIRA ticket, AI tools MUST check for the "Manual" label:
+
+```yaml
+JIRA Issue Status Check:
+  CPG-123 (no labels): ✅ AI can work autonomously
+  CPG-124 + "Manual": ❌ STOP - Ask user for explicit permission
+  CPG-125 + "Manual" + user approval: ✅ Proceed with work
+```
+
+### 2. Manual Label Detection Process
+When encountering a JIRA issue:
+1. **Check Labels**: Look for case-sensitive "Manual" label
+2. **If Manual Label Found**: 
+   - STOP immediately
+   - Notify user: "CPG-XXX has 'Manual' label - requires your approval"
+   - Wait for explicit user confirmation ("yes", "proceed", or similar)
+3. **If No Manual Label**: Proceed with autonomous work
+4. **After User Approval**: Document the override and proceed
+
+### 3. When Manual Label is Used
+Issues marked "Manual" typically involve:
+- **Sensitive Features**: Authentication, payments, data privacy
+- **Complex Architecture**: Major system changes requiring human oversight
+- **Security Concerns**: Any functionality touching user data
+- **UI/UX Critical**: User-facing changes requiring design review
+- **Client Requirements**: Features needing business logic approval
+
+## JIRA Format Requirements
+
+### Ticket Format
+- **Project Key**: `CPG` (Comprehensive Primary Gamification)
+- **Format**: `CPG-123` (where 123 is the issue number)
+- **Examples**: CPG-001, CPG-045, CPG-999
+
+### Branch Naming (MANDATORY)
+All branches MUST follow this exact format:
+```
+<type>/CPG-<issue-number>-<short-description>
+```
+
+#### Valid Branch Types
+- `feature/CPG-123-user-authentication`
+- `bugfix/CPG-124-login-validation`
+- `hotfix/CPG-125-security-patch`
+- `docs/CPG-126-api-documentation`
+- `chore/CPG-127-dependency-updates`
+- `test/CPG-128-e2e-coverage`
+- `spike/CPG-129-performance-research`
+- `refactor/CPG-130-code-cleanup`
+
+#### Invalid Examples (Will be rejected)
+- `feature/user-authentication` (Missing JIRA reference)
+- `feature/CPG-123` (Missing description)
+- `bugfix/login-fix` (Missing JIRA reference)
+
+### Commit Message Requirements
+All commits MUST reference JIRA issues:
+
+#### Required Format
+```
+<type>(<scope>): <description>
+
+[optional body]
+
+<JIRA reference>
+```
+
+#### JIRA Reference Examples
+```bash
+# Single issue closure
+Closes CPG-123
+
+# Multiple issues
+Relates-to: CPG-123, CPG-124
+Closes: CPG-125
+
+# Partial work
+Part-of: CPG-126
+
+# Bug fixes
+Fixes: CPG-127
+```
+
+#### Complete Examples
+```bash
+feat(auth): implement OAuth2 integration
+
+- Add Google OAuth2 provider
+- Implement user profile mapping
+- Add error handling for OAuth failures
+
+Closes CPG-140
+
+fix(streaks): correct weekend calculation logic
+
+Weekend days should not break student streaks as they
+are non-school days in the UK educational system.
+
+- Update streak calculation to skip weekends
+- Add unit tests for weekend scenarios
+
+Fixes CPG-141
+```
+
+## AI Tool Implementation Checklist
+
+When working on any issue, AI tools must:
+
+- [ ] **Extract JIRA ID** from branch name or user request
+- [ ] **Check for Manual label** on the JIRA issue
+- [ ] **If Manual label exists**: Stop and request user permission
+- [ ] **If no Manual label**: Proceed with autonomous work
+- [ ] **Create proper branch name** following CPG format
+- [ ] **Use proper commit messages** with JIRA references
+- [ ] **Reference JIRA issue** in PR title and description
+
+## Error Handling
+
+### Invalid JIRA Reference
+If JIRA issue doesn't exist or is invalid:
+```bash
+Error: CPG-999 not found in JIRA
+Solution: Verify issue number and ensure it exists
+```
+
+### Missing Manual Label Check
+```bash
+Error: Failed to check for Manual label
+Solution: Always verify issue labels before proceeding
+```
+
+### Branch Name Validation Failure
+```bash
+Error: Branch name doesn't follow CPG format
+Solution: Rename branch to include JIRA reference
+Example: git branch -m feature/CPG-123-correct-name
+```
+
+## Integration with Development Workflow
+
+### 1. Issue Assignment
+- Ensure JIRA issue is assigned to you
+- Move issue to "In Progress" status
+- Check for Manual label before starting
+
+### 2. Branch Creation
+- Always start from `develop` branch
+- Use exact CPG format in branch name
+- Push branch and create PR with JIRA reference
+
+### 3. Work Completion
+- Reference JIRA issue in all commits
+- Update JIRA issue status appropriately
+- Ensure PR title includes CPG reference
+
+This policy enables **autonomous AI development** while maintaining **human control** over sensitive features through the Manual label system.

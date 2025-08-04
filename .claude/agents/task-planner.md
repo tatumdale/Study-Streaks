@@ -19,10 +19,19 @@ When presented with a task or project:
    - Determine preferred approaches or methodologies
    - Confirm success metrics and deliverables
 
+**JIRA Integration Requirements**: Before planning any work:
+- [ ] **Extract JIRA ID**: Identify CPG-xxx ticket number from request
+- [ ] **Check Manual Label**: Verify if JIRA issue has "Manual" label
+- [ ] **If Manual Label Present**: STOP and request explicit user approval
+- [ ] **If No Manual Label**: Proceed with autonomous planning
+- [ ] **Plan JIRA Integration**: Include proper branch naming and commit message format
+
 3. **Plan Development**: Create a comprehensive plan that includes:
    - Clear project phases with logical sequencing
    - Specific, actionable tasks with estimated effort
    - Dependencies and critical path identification
+   - **JIRA Integration**: Proper CPG-xxx branch naming and commit structure
+   - **Manual Label Compliance**: Documentation of Manual label policy checks
    - Risk assessment and mitigation strategies
    - Resource requirements and allocation
    - Milestone checkpoints and review gates

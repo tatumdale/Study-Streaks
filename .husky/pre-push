@@ -15,13 +15,13 @@ validate_branch_name() {
     
     # Valid branch patterns
     valid_patterns=(
-        "^feature/SSP-[0-9]+-[a-z0-9-]+$"
-        "^bugfix/SSP-[0-9]+-[a-z0-9-]+$"
-        "^hotfix/SSP-[0-9]+-[a-z0-9-]+$"
+        "^feature/CPG-[0-9]+-[a-z0-9-]+$"
+        "^bugfix/CPG-[0-9]+-[a-z0-9-]+$"
+        "^hotfix/CPG-[0-9]+-[a-z0-9-]+$"
         "^release/v[0-9]+\.[0-9]+\.[0-9]+$"
-        "^docs/SSP-[0-9]+-[a-z0-9-]+$"
-        "^chore/SSP-[0-9]+-[a-z0-9-]+$"
-        "^test/SSP-[0-9]+-[a-z0-9-]+$"
+        "^docs/CPG-[0-9]+-[a-z0-9-]+$"
+        "^chore/CPG-[0-9]+-[a-z0-9-]+$"
+        "^test/CPG-[0-9]+-[a-z0-9-]+$"
     )
     
     for pattern in "${valid_patterns[@]}"; do
@@ -38,12 +38,12 @@ if ! validate_branch_name "$current_branch"; then
     echo "❌ Invalid branch name: $current_branch"
     echo ""
     echo "Branch names must follow the convention:"
-    echo "  <type>/SSP-<number>-<description>"
+    echo "  <type>/CPG-<number>-<description>"
     echo ""
     echo "Valid examples:"
-    echo "  feature/SSP-123-user-authentication"
-    echo "  bugfix/SSP-124-login-validation"
-    echo "  hotfix/SSP-125-security-patch"
+    echo "  feature/CPG-123-user-authentication"
+    echo "  bugfix/CPG-124-login-validation"
+    echo "  hotfix/CPG-125-security-patch"
     echo "  release/v1.2.0"
     echo ""
     echo "Valid types: feature, bugfix, hotfix, release, docs, chore, test"

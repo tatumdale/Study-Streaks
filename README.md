@@ -207,7 +207,7 @@ We welcome contributions from educators, developers, and the community. Please r
 
 ### Development Workflow
 1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/SSP-123-description`
+2. Create a feature branch: `git checkout -b feature/CPG-123-description`
 3. Follow our [code standards](docs/Boundary%20Policies%20&%20Rules/Code%20Standards.md)
 4. Write tests and ensure they pass
 5. Submit a pull request with detailed description
