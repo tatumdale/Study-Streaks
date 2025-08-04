@@ -87,8 +87,9 @@ auto-save-list
 tramp
 .\#*
 
-# IDE - Cursor
+# IDE - Cursor (ignore sensitive config but track rules)
 .cursor/
+!.cursor/rules/
 
 # OS - macOS
 .DS_Store

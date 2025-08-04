@@ -194,11 +194,20 @@ import type { Student, Homework } from '@/types'
 
 ## Development Workflow
 
-### Git Conventions
-- Feature branches: `feature/homework-tracking`
-- Commit messages: `feat: add homework assignment form`
+### Git Conventions  
+- Feature branches: `feature/CPG-123-homework-tracking`
+- Commit messages: `feat: add homework assignment form
+
+Closes CPG-123`
 - PR reviews required before merge
 - Squash commits before merging
+
+### JIRA Integration & AI Tool Policy
+- **JIRA Format**: All tickets use CPG-xxx format (Comprehensive Primary Gamification)
+- **Branch Naming**: Must include JIRA reference: `feature/CPG-123-description`
+- **Manual Label Policy**: Issues with "Manual" label require explicit user approval before AI tools can work
+- **AI Tool Behavior**: Check for Manual label before proceeding with autonomous work
+- **Commit Messages**: Must reference JIRA issues: `Closes CPG-123` or `Part-of: CPG-123`
 
 ### Code Quality
 - ESLint + Prettier configuration

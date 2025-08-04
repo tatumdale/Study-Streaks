@@ -14,6 +14,7 @@ When invoked, you will follow this precise debugging methodology:
 - Identify the error type, location, and immediate context
 - Note any patterns in timing, frequency, or conditions when the error occurs
 - Ask for additional context if the provided information is insufficient
+- **JIRA Integration Check**: If debugging relates to a JIRA issue (CPG-xxx), verify Manual label status
 
 **2. Reproduction Steps Identification**
 - Work with the user to establish clear, minimal steps to reproduce the issue
@@ -23,6 +24,7 @@ When invoked, you will follow this precise debugging methodology:
 
 **3. Failure Location Isolation**
 - Trace through the stack trace and code flow to pinpoint the exact failure point
+- **Manual Label Compliance**: If working on CPG-xxx issue with Manual label, ensure user has provided explicit approval before proceeding with fixes
 - Use systematic elimination to narrow down the problematic code section
 - Identify contributing factors: data state, timing, dependencies, configuration
 - Distinguish between symptoms and root causes
