@@ -7,12 +7,12 @@
 # Start a new feature
 git checkout develop
 git pull origin develop
-git checkout -b feature/SSP-123-user-dashboard
+git checkout -b feature/CPG-123-user-dashboard
 
 # Start a bugfix
 git checkout develop
 git pull origin develop
-git checkout -b bugfix/SSP-124-login-error
+git checkout -b bugfix/CPG-124-login-error
 ```
 
 ### Making Changes
@@ -22,7 +22,7 @@ git add .
 git commit -m "feat(auth): add user dashboard layout"
 
 # Push branch (first time)
-git push -u origin feature/SSP-123-user-dashboard
+git push -u origin feature/CPG-123-user-dashboard
 
 # Push subsequent changes
 git push
@@ -33,7 +33,7 @@ git push
 # Update your feature branch with latest develop
 git checkout develop
 git pull origin develop
-git checkout feature/SSP-123-user-dashboard
+git checkout feature/CPG-123-user-dashboard
 git rebase develop
 ```
 
@@ -65,13 +65,13 @@ Add new things
 
 ### Good Examples ✅
 ```
-feature/SSP-123-homework-upload-system
-bugfix/SSP-124-streak-calculation-error
-hotfix/SSP-125-gdpr-data-deletion
+feature/CPG-123-homework-upload-system
+bugfix/CPG-124-streak-calculation-error
+hotfix/CPG-125-gdpr-data-deletion
 release/v2.1.0
-docs/SSP-126-api-documentation
-chore/SSP-127-dependency-updates
-test/SSP-128-e2e-authentication
+docs/CPG-126-api-documentation
+chore/CPG-127-dependency-updates
+test/CPG-128-e2e-authentication
 ```
 
 ### Bad Examples ❌
@@ -103,14 +103,14 @@ test123
 # Create hotfix from master
 git checkout master
 git pull origin master
-git checkout -b hotfix/SSP-125-security-patch
+git checkout -b hotfix/CPG-125-security-patch
 
 # Make the fix
 git add .
 git commit -m "fix(security): patch user data exposure"
 
 # Create PR to master (fast-track review)
-git push -u origin hotfix/SSP-125-security-patch
+git push -u origin hotfix/CPG-125-security-patch
 
 # After merge, update develop
 git checkout develop

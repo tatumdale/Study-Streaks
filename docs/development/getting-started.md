@@ -185,21 +185,21 @@ pnpm run test:coverage # Run tests with coverage
 # Start new feature
 git checkout develop
 git pull origin develop
-git checkout -b feature/SSP-123-add-streak-system
+git checkout -b feature/CPG-123-add-streak-system
 
 # Make changes and commit
 git add .
 git commit -m "feat(streaks): add basic streak tracking"
 
 # Push and create PR
-git push -u origin feature/SSP-123-add-streak-system
+git push -u origin feature/CPG-123-add-streak-system
 # Create pull request on GitHub
 ```
 
 ### Branch Naming Convention
 
-- **Features**: `feature/SSP-123-description`
-- **Bug fixes**: `fix/SSP-456-bug-description`
+- **Features**: `feature/CPG-123-description`
+- **Bug fixes**: `fix/CPG-456-bug-description`
 - **Documentation**: `docs/update-api-documentation`
 - **Hotfixes**: `hotfix/critical-security-patch`
 
