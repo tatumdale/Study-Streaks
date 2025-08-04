@@ -18,6 +18,8 @@
     "build:web": "nx build web",
     "test": "nx run-many --target=test --parallel=3",
     "test:watch": "nx run-many --target=test --parallel=3 --watch",
+    "test:env": "./scripts/test-environment.sh",
+    "setup:complete": "./scripts/setup-and-test.sh",
     "test:coverage": "nx run-many --target=test --parallel=3 --coverage",
     "e2e": "nx e2e web-e2e",
     "lint": "nx run-many --target=lint --parallel=3",

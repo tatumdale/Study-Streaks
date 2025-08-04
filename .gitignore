@@ -91,6 +91,10 @@ tramp
 .cursor/
 !.cursor/rules/
 
+# Development - Sensitive Documentation
+# Files containing credentials, API keys, or other sensitive development information
+docs/development/environment-testing-with-credentials.md
+
 # OS - macOS
 .DS_Store
 .AppleDouble
